@@ -1,25 +1,32 @@
 {
-  "name": "bank-copy-compliance-checker",
+  "name": "ai-interview",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.15",
-    "openai": "^4.70.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "@langchain/core": "^0.3.60",
+    "@langchain/openai": "^0.4.0",
+    "@supabase/supabase-js": "^2.46.1",
+    "langchain": "^0.3.6",
+    "next": "16.0.3",
+    "react": "19.0.0-rc-66855b96-20241106",
+    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^20.16.11",
-    "@types/react": "^18.3.11",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.14",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "16.0.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3"
   }
 }
