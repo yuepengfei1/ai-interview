@@ -193,7 +193,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "参数错误", details: error.errors }, { status: 400 });
     }
     console.error("Interview API error:", error);
-    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: message || "服务器内部错误" },
+      { status: 500 }
+    );
   }
 }
 
