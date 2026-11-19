@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI 智能模拟面试官",
-  description: "基于 AI 的智能模拟面试系统，帮助你提升面试技能",
+  description: "AI Mock Interviewer · JD 解析 · 流式追问 · 复盘报告",
 };
 
 export default function RootLayout({

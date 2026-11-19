@@ -1,69 +1,78 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import InterviewForm from "@/components/InterviewForm";
 import ChatInterface from "@/components/ChatInterface";
-import { InterviewState } from "@/types";
+import type { InterviewMode, InterviewState } from "@/types";
+
+const DEFAULT_MODE: InterviewMode = { scenario: "general", pressure: "standard" };
 
 export default function Home() {
+  const router = useRouter();
   const [state, setState] = useState<InterviewState>({
     step: "setup",
+    interviewId: "",
     jd: "",
     resume: "",
     jdAnalysis: "",
+    mode: DEFAULT_MODE,
     openingQuestions: [],
     conversationHistory: [],
   });
 
   const handleInitComplete = (
+    interviewId: string,
     jdAnalysis: string,
     openingQuestions: string[],
     jd: string,
-    resume: string
+    resume: string,
+    mode: InterviewMode
   ) => {
-    // 后端兜底：强制把每个问题转成字符串，防御 LLM 偶发返回对象
+    // 防御：确保 openingQuestions 是字符串数组
     const safeQuestions = openingQuestions
       .map((q: any) => {
         if (typeof q === "string") return q;
         if (q && typeof q === "object") {
-          return (
-            q.question ||
-            q.text ||
-            q.content ||
-            q.title ||
-            JSON.stringify(q)
-          );
+          return q.question || q.text || q.content || JSON.stringify(q);
         }
         return String(q ?? "");
       })
-      .filter((s: string) => s && s.trim())
+      .filter((s) => s && s.trim())
       .slice(0, 3);
 
     setState((prev) => ({
       ...prev,
       step: "chat",
+      interviewId,
       jd,
       resume,
       jdAnalysis,
+      mode,
       openingQuestions: safeQuestions,
     }));
+  };
+
+  const handleConversationUpdate = (history: InterviewState["conversationHistory"]) => {
+    setState((prev) => ({ ...prev, conversationHistory: history }));
   };
 
   const handleReset = () => {
     setState({
       step: "setup",
+      interviewId: "",
       jd: "",
       resume: "",
       jdAnalysis: "",
+      mode: DEFAULT_MODE,
       openingQuestions: [],
       conversationHistory: [],
     });
   };
 
-  const handleConversationUpdate = (
-    conversationHistory: InterviewState["conversationHistory"]
-  ) => {
-    setState((prev) => ({ ...prev, conversationHistory }));
+  const handleInterviewEnd = (reportInterviewId: string) => {
+    // 跳转到报告页
+    router.push(`/report/${reportInterviewId}`);
   };
 
   return (
@@ -79,18 +88,26 @@ export default function Home() {
                 智能模拟面试官
               </h1>
               <p className="text-xs text-slate-500">
-                AI Mock Interviewer · Powered by LangChain
+                AI Mock Interviewer · LangChain + Supabase
               </p>
             </div>
           </div>
-          {state.step === "chat" && (
+          <nav className="flex items-center gap-2">
             <button
-              onClick={handleReset}
-              className="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              onClick={() => router.push("/history")}
+              className="text-sm text-slate-600 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
             >
-              重新开始
+              📁 历史记录
             </button>
-          )}
+            {state.step === "chat" && (
+              <button
+                onClick={handleReset}
+                className="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                重新开始
+              </button>
+            )}
+          </nav>
         </div>
       </header>
 
@@ -99,11 +116,14 @@ export default function Home() {
           <InterviewForm onComplete={handleInitComplete} />
         ) : (
           <ChatInterface
+            interviewId={state.interviewId}
             jdAnalysis={state.jdAnalysis}
             resume={state.resume}
+            mode={state.mode}
             openingQuestions={state.openingQuestions}
             conversationHistory={state.conversationHistory}
             onConversationUpdate={handleConversationUpdate}
+            onInterviewEnd={handleInterviewEnd}
           />
         )}
       </div>
