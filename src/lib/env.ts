@@ -23,14 +23,23 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function getEnv(): Env {
-  return envSchema.parse(process.env);
+  // 逐个显式读取 process.env.XXX，便于构建期被 next.config 的 env 内联替换
+  return envSchema.parse({
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  });
 }
 
 /** 运行时获取大模型密钥，未配置时抛出明确错误 */
 export function requireOpenAIKey(): string {
   const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) {
-    throw new Error("OPENAI_API_KEY 未配置，请在环境变量中设置");
+    throw new Error(
+      "OPENAI_API_KEY 未配置：请在 EdgeOne 控制台「项目设置 → 环境变量」中添加，保存后重新部署（环境变量变更只对新部署生效）"
+    );
   }
   return key;
 }
