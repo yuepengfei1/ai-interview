@@ -7,7 +7,10 @@ import type { NextConfig } from "next";
  * 注意：仅内联服务端调用模型必需的变量；Supabase 相关变量不入内联，
  * 避免 SERVICE_ROLE_KEY 等敏感信息因模块共享被编译进浏览器产物。
  */
-const buildEnv: Record<string, string> = {};
+const buildEnv: Record<string, string> = {
+  // 构建期标记：1 表示构建时读到了 key（已内联），0 表示没有
+  BUILD_OPENAI_KEY_PRESENT: process.env.OPENAI_API_KEY ? "1" : "0",
+};
 if (process.env.OPENAI_API_KEY) {
   buildEnv.OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 }
