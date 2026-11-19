@@ -148,11 +148,11 @@ export default function ReportPage({
                   className="border border-slate-200 rounded-xl p-4 bg-slate-50"
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="text-sm font-semibold text-slate-800">
+                    <h3 className="text-sm font-semibold text-slate-800 min-w-0">
                       Q{i + 1}. {b.question}
                     </h3>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0 ${
                         b.score >= 7
                           ? "bg-emerald-100 text-emerald-700"
                           : b.score >= 5

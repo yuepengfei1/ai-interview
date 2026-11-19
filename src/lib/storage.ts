@@ -42,10 +42,14 @@ export interface InterviewReport {
 
 // ==================== Supabase 方案 ====================
 
-const SERVER_SUPABASE = createServerClient();
+// 懒加载：避免模块初始化阶段读取环境变量（构建期可能不存在）
+let serverSupabase: ReturnType<typeof createServerClient> | undefined;
 
-function hasSupabase() {
-  return !!SERVER_SUPABASE;
+function getServerSupabase() {
+  if (serverSupabase === undefined) {
+    serverSupabase = createServerClient();
+  }
+  return serverSupabase;
 }
 
 // ==================== 无 Supabase 时的降级方案 ====================
@@ -89,8 +93,8 @@ function fallbackSave(list: InterviewRecord[]) {
 // ==================== 公共 API ====================
 
 export async function listInterviews(userId?: string): Promise<InterviewRecord[]> {
-  if (hasSupabase()) {
-    const sb = SERVER_SUPABASE!;
+  const sb = getServerSupabase();
+  if (sb) {
     let q = sb
       .from("interviews")
       .select("*")
@@ -106,8 +110,8 @@ export async function listInterviews(userId?: string): Promise<InterviewRecord[]
 }
 
 export async function getInterview(id: string): Promise<InterviewRecord | null> {
-  if (hasSupabase()) {
-    const sb = SERVER_SUPABASE!;
+  const sb = getServerSupabase();
+  if (sb) {
     const { data } = await sb.from("interviews").select("*").eq("id", id).maybeSingle();
     return (data as unknown as InterviewRecord) ?? null;
   }
@@ -117,8 +121,8 @@ export async function getInterview(id: string): Promise<InterviewRecord | null> 
 export async function saveInterview(
   record: InterviewRecord
 ): Promise<InterviewRecord> {
-  if (hasSupabase()) {
-    const sb = SERVER_SUPABASE!;
+  const sb = getServerSupabase();
+  if (sb) {
     const { data } = await sb
       .from("interviews")
       .upsert(record)
@@ -135,8 +139,8 @@ export async function saveInterview(
 }
 
 export async function deleteInterview(id: string): Promise<void> {
-  if (hasSupabase()) {
-    const sb = SERVER_SUPABASE!;
+  const sb = getServerSupabase();
+  if (sb) {
     await sb.from("interviews").delete().eq("id", id);
     return;
   }

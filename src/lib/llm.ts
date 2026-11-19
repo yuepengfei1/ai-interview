@@ -1,5 +1,5 @@
 import { ChatOpenAI } from "@langchain/openai";
-import { getEnv } from "./env";
+import { getEnv, requireOpenAIKey } from "./env";
 
 export function createLLM(options?: {
   model?: string;
@@ -9,7 +9,7 @@ export function createLLM(options?: {
   const env = getEnv();
 
   return new ChatOpenAI({
-    apiKey: env.OPENAI_API_KEY,
+    apiKey: requireOpenAIKey(),
     model: options?.model ?? "glm-4-flash",
     temperature: options?.temperature ?? 0.7,
     streaming: options?.streaming ?? true,
