@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FALLBACK_OPENAI_API_KEY, FALLBACK_OPENAI_BASE_URL } from "./llm-key";
 
 const emptyToUndefined = (v: unknown) => {
   if (typeof v !== "string") return v;
@@ -13,7 +14,7 @@ const envSchema = z.object({
   // 空字符串（部署平台上常见）也视为未配置，回退到智谱兼容地址
   OPENAI_BASE_URL: z.preprocess(
     emptyToUndefined,
-    z.string().default("https://open.bigmodel.cn/api/paas/v4")
+    z.string().default(FALLBACK_OPENAI_BASE_URL)
   ),
   SUPABASE_URL: z.preprocess(emptyToUndefined, z.string().optional()),
   SUPABASE_ANON_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
@@ -33,13 +34,11 @@ export function getEnv(): Env {
   });
 }
 
-/** 运行时获取大模型密钥，未配置时抛出明确错误 */
+/** 运行时获取大模型密钥：优先环境变量，其次服务端兜底值 */
 export function requireOpenAIKey(): string {
-  const key = process.env.OPENAI_API_KEY?.trim();
+  const key = process.env.OPENAI_API_KEY?.trim() || FALLBACK_OPENAI_API_KEY;
   if (!key) {
-    throw new Error(
-      "OPENAI_API_KEY 未配置：请在 EdgeOne 控制台「项目设置 → 环境变量」中添加，保存后重新部署（环境变量变更只对新部署生效）"
-    );
+    throw new Error("OPENAI_API_KEY 未配置，且未提供兜底密钥");
   }
   return key;
 }
